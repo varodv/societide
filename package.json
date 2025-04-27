@@ -1,5 +1,5 @@
 {
-  "name": "template-ts",
+  "name": "societide",
   "type": "module",
   "version": "1.0.0",
   "private": true,
@@ -12,7 +12,7 @@
     "prepare": "husky",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:ci": "pnpm run lint --cache --cache-strategy content --cache-location ~/.cache/eslint/template-ts",
+    "lint:ci": "pnpm run lint --cache --cache-strategy content --cache-location ~/.cache/eslint/societide",
     "build": "tsc --project tsconfig.build.json",
     "test": "vitest run",
     "coverage": "vitest run --coverage"
