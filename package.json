@@ -1,7 +1,7 @@
 {
   "name": "societide",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "private": true,
   "engines": {
     "node": "^22.15",
@@ -9,24 +9,37 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "postinstall": "nuxt prepare",
     "prepare": "husky",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:ci": "pnpm run lint --cache --cache-strategy content --cache-location ~/.cache/eslint/societide",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "generate": "nuxt generate",
     "test": "vitest run",
     "coverage": "vitest run --coverage"
   },
+  "dependencies": {
+    "nuxt": "3.17.1",
+    "vue": "3.5.13",
+    "vue-router": "4.5.1"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "4.12.0",
+    "@nuxt/test-utils": "3.17.2",
     "@vitest/coverage-v8": "3.1.2",
+    "@vue/test-utils": "2.4.6",
     "eslint": "9.25.1",
     "eslint-plugin-format": "1.0.1",
+    "happy-dom": "17.4.4",
     "husky": "9.1.7",
     "lint-staged": "15.5.1",
     "typescript": "5.8.3",
     "vite": "6.3.3",
-    "vitest": "3.1.2"
+    "vitest": "3.1.2",
+    "vue-tsc": "2.2.10"
   },
   "lint-staged": {
     "*": "eslint --fix"

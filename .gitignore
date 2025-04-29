@@ -1,4 +1,9 @@
 # Dev/Build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
 dist
 coverage
 
@@ -6,10 +11,12 @@ coverage
 node_modules
 
 # Logs
+logs
 *.log
 
 # Misc
 .DS_Store
+.fleet
 .idea
 
 # Local env files
