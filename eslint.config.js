@@ -21,6 +21,17 @@ export default antfu(
     },
   },
   {
+    ignores: ['**/*.json', '**/*.md'],
+    rules: {
+      'max-len': [
+        'error',
+        {
+          code: 100,
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.test.ts'],
     rules: {
       'ts/no-unsafe-assignment': 'off',
