@@ -1,5 +1,3 @@
-import { useEntity } from './use-entity';
-
 describe('useEntity', () => {
   const { create } = useEntity();
 

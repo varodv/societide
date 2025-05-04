@@ -1,7 +1,3 @@
-import { useStorage } from '@vueuse/core';
-import { useEntity } from './use-entity';
-import { useEvent } from './use-event';
-
 vi.mock('./use-entity', () => ({
   useEntity: vi.fn(),
 }));
@@ -19,7 +15,7 @@ describe('useEvent', () => {
     (useEntity as any).mockReturnValue({ create: createMock });
 
     storageMock = { value: [] };
-    (useStorage as any).mockReturnValue(storageMock);
+    (useLocalStorage as any).mockReturnValue(storageMock);
   });
 
   it('should initialize log with an empty array', () => {
@@ -55,7 +51,7 @@ describe('useEvent', () => {
       { type: 'event1', payload: { key: 'value1' }, timestamp: new Date('2023-01-01T00:00:00.000Z') },
     ];
 
-    const serializer = (useStorage as any).mock.calls[0][3].serializer;
+    const serializer = (useLocalStorage as any).mock.calls[0][2].serializer;
 
     expect(serializer.read(serializedData)).toEqual(deserializedData);
     expect(serializer.write(deserializedData)).toEqual(serializedData);

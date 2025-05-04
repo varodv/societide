@@ -1,11 +1,9 @@
 import type { AnyEvent, Emitted } from './types';
-import { createSharedComposable, useStorage } from '@vueuse/core';
-import { useEntity } from './use-entity';
 
 const useEvent = createSharedComposable(() => {
   const { create } = useEntity();
 
-  const log = useStorage<Array<Emitted<AnyEvent>>>('log', [], undefined, {
+  const log = useLocalStorage<Array<Emitted<AnyEvent>>>('log', [], {
     serializer: {
       read: (raw) => {
         const value = JSON.parse(raw) as Array<Omit<Emitted<AnyEvent>, 'timestamp'> & { timestamp: string }>;
