@@ -1,29 +1,32 @@
 import antfu from '@antfu/eslint-config';
 
-export default antfu({
-  typescript: {
-    tsconfigPath: 'tsconfig.json',
-  },
-  stylistic: {
-    semi: true,
-  },
-  formatters: true,
-  test: {
-    overrides: {
-      'test/prefer-lowercase-title': [
-        'error',
-        {
-          ignore: ['describe'],
-        },
-      ],
+export default antfu(
+  {
+    typescript: {
+      tsconfigPath: 'tsconfig.json',
+    },
+    stylistic: {
+      semi: true,
+    },
+    formatters: true,
+    test: {
+      overrides: {
+        'test/prefer-lowercase-title': [
+          'error',
+          {
+            ignore: ['describe'],
+          },
+        ],
+      },
     },
   },
-}, {
-  files: ['**/*.test.ts'],
-  rules: {
-    'ts/no-unsafe-assignment': 'off',
-    'ts/no-unsafe-call': 'off',
-    'ts/no-unsafe-member-access': 'off',
-    'ts/no-unsafe-return': 'off',
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      'ts/no-unsafe-assignment': 'off',
+      'ts/no-unsafe-call': 'off',
+      'ts/no-unsafe-member-access': 'off',
+      'ts/no-unsafe-return': 'off',
+    },
   },
-});
+);
