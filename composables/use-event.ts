@@ -30,9 +30,14 @@ const useEvent = createSharedComposable(() => {
     return emittedEvents;
   }
 
+  function reset() {
+    log.value = [];
+  }
+
   return {
     log,
     emit,
+    reset,
   };
 });
 

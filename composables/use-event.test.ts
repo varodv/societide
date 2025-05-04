@@ -65,4 +65,13 @@ describe('useEvent', () => {
     expect(serializer.read(serializedData)).toEqual(deserializedData);
     expect(serializer.write(deserializedData)).toEqual(serializedData);
   });
+
+  it('should reset the log to an empty array', () => {
+    const { log, reset } = useEvent();
+
+    expect(log.value).toHaveLength(2);
+
+    reset();
+    expect(log.value).toEqual([]);
+  });
 });
