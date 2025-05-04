@@ -2,8 +2,9 @@ vi.mock('./use-entity', () => ({
   useEntity: vi.fn(),
 }));
 
-vi.mock('@vueuse/core', () => ({
-  useStorage: vi.fn(),
+vi.mock(import('@vueuse/core'), async importOriginal => ({
+  ...await importOriginal(),
+  useLocalStorage: vi.fn(),
 }));
 
 describe('useEvent', () => {
