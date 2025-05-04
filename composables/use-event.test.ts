@@ -3,7 +3,7 @@ vi.mock('./use-entity', () => ({
 }));
 
 vi.mock(import('@vueuse/core'), async importOriginal => ({
-  ...await importOriginal(),
+  ...(await importOriginal()),
   useLocalStorage: vi.fn(),
 }));
 
@@ -45,11 +45,19 @@ describe('useEvent', () => {
 
   it('should serialize and deserialize log correctly', () => {
     const serializedData = JSON.stringify([
-      { type: 'event1', payload: { key: 'value1' }, timestamp: '2023-01-01T00:00:00.000Z' },
+      {
+        type: 'event1',
+        payload: { key: 'value1' },
+        timestamp: '2023-01-01T00:00:00.000Z',
+      },
     ]);
 
     const deserializedData = [
-      { type: 'event1', payload: { key: 'value1' }, timestamp: new Date('2023-01-01T00:00:00.000Z') },
+      {
+        type: 'event1',
+        payload: { key: 'value1' },
+        timestamp: new Date('2023-01-01T00:00:00.000Z'),
+      },
     ];
 
     const serializer = (useLocalStorage as any).mock.calls[0][2].serializer;
