@@ -121,12 +121,33 @@ describe('useTime', () => {
   });
 
   it('should calculate time since a timestamp correctly', () => {
-    const playTimestamp = new Date(nowMock.value.getTime() - 5000);
-    logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
+    logMock.value.push(
+      {
+        type: 'PLAY',
+        timestamp: new Date(nowMock.value.getTime() - 5000),
+      },
+      {
+        type: 'PAUSE',
+        timestamp: new Date(nowMock.value.getTime() - 4000),
+      },
+      {
+        type: 'RESUME',
+        timestamp: new Date(nowMock.value.getTime() - 3000),
+      },
+      {
+        type: 'SET_SPEED',
+        timestamp: new Date(nowMock.value.getTime() - 2000),
+        payload: { value: 2 },
+      },
+      {
+        type: 'PAUSE',
+        timestamp: new Date(nowMock.value.getTime() - 1000),
+      },
+    );
 
     const { getTimeSince } = useTime();
-    const result = getTimeSince(playTimestamp);
+    const result = getTimeSince(new Date(nowMock.value.getTime() - 4000));
 
-    expect(result).toBeGreaterThan(0);
+    expect(result).toEqual(3000);
   });
 });
