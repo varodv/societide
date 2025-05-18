@@ -5,11 +5,13 @@ vi.mock('./use-entity', () => ({
 vi.mock(import('@vueuse/core'), async importOriginal => ({
   ...(await importOriginal()),
   useLocalStorage: vi.fn(),
+  useNow: vi.fn(),
 }));
 
 describe('useEvent', () => {
   let createMock: ReturnType<typeof vi.fn>;
   let storageMock: { value: any };
+  let nowMock: { value: Date };
 
   beforeEach(() => {
     createMock = vi.fn(event => ({ ...event, id: 'unique-id' }));
@@ -17,6 +19,9 @@ describe('useEvent', () => {
 
     storageMock = { value: [] };
     (useLocalStorage as any).mockReturnValue(storageMock);
+
+    nowMock = { value: new Date() };
+    (useNow as any).mockReturnValue(nowMock);
   });
 
   it('should initialize log with an empty array', () => {

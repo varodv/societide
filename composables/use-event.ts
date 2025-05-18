@@ -2,6 +2,7 @@ import type { AnyEvent, Emitted } from './types';
 
 const useEvent = createSharedComposable(() => {
   const { create } = useEntity();
+  const now = useNow();
 
   const log = useLocalStorage<Array<Emitted<AnyEvent>>>('log', [], {
     serializer: {
@@ -19,7 +20,7 @@ const useEvent = createSharedComposable(() => {
   });
 
   function emit(...events: Array<AnyEvent>) {
-    const timestamp = new Date();
+    const timestamp = now.value;
     const emittedEvents = events.map<Emitted<AnyEvent>>(event =>
       create({
         ...event,
