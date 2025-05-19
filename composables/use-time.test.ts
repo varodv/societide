@@ -1,4 +1,4 @@
-import { useTime } from './use-time';
+import { MILLISECONDS_IN_A_DAY, useTime } from './use-time';
 
 vi.mock('./use-event', () => ({
   useEvent: vi.fn(),
@@ -26,9 +26,9 @@ describe('useTime', () => {
     (useNow as any).mockReturnValue(nowMock);
   });
 
-  it('should compute time as 0 if no PLAY event exists', () => {
+  it('should compute time as undefined if no PLAY event exists', () => {
     const { time } = useTime();
-    expect(time.value).toBe(0);
+    expect(time.value).toBeUndefined();
   });
 
   it('should compute time since the PLAY event', () => {
@@ -36,7 +36,20 @@ describe('useTime', () => {
     logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
 
     const { time } = useTime();
-    expect(time.value).toBeGreaterThan(0);
+    expect(time.value).toBe(1000);
+  });
+
+  it('should compute day as undefined if no PLAY event exists', () => {
+    const { day } = useTime();
+    expect(day.value).toBeUndefined();
+  });
+
+  it('should compute day since the PLAY event', () => {
+    const playTimestamp = new Date(nowMock.value.getTime() - MILLISECONDS_IN_A_DAY);
+    logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
+
+    const { day } = useTime();
+    expect(day.value).toBe(1);
   });
 
   it('should compute paused state correctly', () => {

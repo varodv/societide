@@ -1,5 +1,7 @@
 import type { AnyIndividualEvent, Emitted, Individual } from './types';
 
+const AGE_DAYS_MULTIPLIER = 365;
+
 function useIndividual() {
   const { log } = useEvent();
   const { getTimeSince } = useTime();
@@ -19,7 +21,7 @@ function useIndividual() {
       throw new Error('The given individual does not exist');
     }
     const deathEvent = individualLog.find(event => event.type === 'DEATH');
-    return getTimeSince(birthEvent.timestamp, deathEvent?.timestamp);
+    return getTimeSince(birthEvent.timestamp, deathEvent?.timestamp) * AGE_DAYS_MULTIPLIER;
   }
 
   function isAlive(individual: Individual) {
@@ -40,5 +42,6 @@ function useIndividual() {
 }
 
 export {
+  AGE_DAYS_MULTIPLIER,
   useIndividual,
 };

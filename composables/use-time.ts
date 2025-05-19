@@ -6,6 +6,9 @@ import type {
   TimeEvent,
 } from './types';
 
+const MILLISECONDS_IN_A_DAY = 86400000;
+const MILLISECONDS_IN_A_YEAR = 31557600000;
+
 function useTime() {
   const { log, emit } = useEvent();
   const now = useNow();
@@ -13,9 +16,16 @@ function useTime() {
   const time = computed(() => {
     const playEvent = log.value.find(event => event.type === 'PLAY');
     if (!playEvent) {
-      return 0;
+      return undefined;
     }
     return getTimeSince(playEvent.timestamp);
+  });
+
+  const day = computed(() => {
+    if (time.value === undefined) {
+      return undefined;
+    }
+    return Math.floor(time.value / MILLISECONDS_IN_A_DAY);
   });
 
   const paused = computed(() => isPausedAt(now.value));
@@ -105,6 +115,7 @@ function useTime() {
 
   return {
     time,
+    day,
     paused,
     speed,
     pause,
@@ -115,5 +126,7 @@ function useTime() {
 }
 
 export {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_YEAR,
   useTime,
 };
