@@ -8,9 +8,7 @@ function useIndividual() {
 
   function getLog(individual: Individual) {
     return log.value.filter(
-      event =>
-        (event as Emitted<AnyIndividualEvent>).payload?.individual?.id
-        === individual.id,
+      event => (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === individual.id,
     );
   }
 

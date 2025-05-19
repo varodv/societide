@@ -13,8 +13,6 @@ describe('useEntity', () => {
   it('should throw an error if the payload already contains an id', () => {
     const payload = { id: '123', name: 'Test Entity' };
 
-    expect(() => create(payload)).toThrowError(
-      'The given payload already has a property \'id\'',
-    );
+    expect(() => create(payload)).toThrowError('The given payload already has a property \'id\'');
   });
 });

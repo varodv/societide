@@ -41,7 +41,7 @@ const useDeath = createSharedComposable<() => Initializable>(() => {
       return 0;
     }
     const getTimesInRange = (start: number, end: number) => {
-      return (end - start) * 365 / AGE_DAYS_MULTIPLIER;
+      return ((end - start) * 365) / AGE_DAYS_MULTIPLIER;
     };
     let totalChance = 0.01;
     if (age < 40) {
