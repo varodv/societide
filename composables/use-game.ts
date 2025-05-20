@@ -3,6 +3,8 @@ import type { Emitted, PlayEvent } from './types';
 const useGame = createSharedComposable(() => {
   const { emit, reset } = useEvent();
   const { create } = useEntity();
+  const { day } = useTime();
+  const { getDeathEvents } = useDeath();
 
   function play() {
     reset();
@@ -19,7 +21,12 @@ const useGame = createSharedComposable(() => {
     )[0] as Emitted<PlayEvent>;
   }
 
-  useDeath().initialize();
+  watch(day, (value) => {
+    const deathEvents = getDeathEvents(value);
+    if (deathEvents.length > 0) {
+      emit(...deathEvents);
+    }
+  });
 
   return {
     play,

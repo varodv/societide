@@ -1,38 +1,25 @@
-import type { DeathEvent, Individual, Initializable } from './types';
+import type { DeathEvent, Individual } from './types';
 
-const useDeath = createSharedComposable<() => Initializable>(() => {
-  const { day } = useTime();
+function useDeath() {
   const { people } = useSociety();
   const { getAge } = useIndividual();
-  const { emit } = useEvent();
 
-  const initialized = ref(false);
-
-  function initialize() {
-    if (initialized.value) {
-      throw new Error('useDeath is already initialized');
+  function getDeathEvents(day = 0) {
+    if (day === 0) {
+      return [];
     }
-    watch(day, (value = 0) => {
-      if (!value) {
-        return;
+    return people.value.reduce<Array<DeathEvent>>((result, individual) => {
+      const roll = Math.random();
+      if (roll < getDailyDeathChance(individual)) {
+        result.push({
+          type: 'DEATH',
+          payload: {
+            individual,
+          },
+        });
       }
-      const deathEvents = people.value.reduce<Array<DeathEvent>>((result, individual) => {
-        const roll = Math.random();
-        if (roll < getDailyDeathChance(individual)) {
-          result.push({
-            type: 'DEATH',
-            payload: {
-              individual,
-            },
-          });
-        }
-        return result;
-      }, []);
-      if (deathEvents.length > 0) {
-        emit(...deathEvents);
-      }
-    });
-    initialized.value = true;
+      return result;
+    }, []);
   }
 
   function getDailyDeathChance(individual: Individual) {
@@ -63,10 +50,9 @@ const useDeath = createSharedComposable<() => Initializable>(() => {
   }
 
   return {
-    initialized,
-    initialize,
+    getDeathEvents,
   };
-});
+}
 
 export {
   useDeath,
