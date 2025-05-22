@@ -32,7 +32,7 @@ function useBirth() {
     );
     if (age < 40) {
       let totalChance = 1;
-      totalChance -= (getChildren(couple[0]).length / 5 * totalChance);
+      totalChance -= (getChildren(couple[0]).length / 5) * totalChance;
       const times = ((40 - 18) * 365) / AGE_DAYS_MULTIPLIER;
       return getPartialChance(totalChance, times);
     }
