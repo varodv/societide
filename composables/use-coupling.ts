@@ -5,20 +5,24 @@ function useCoupling() {
   const { getLog, getAge, isAlive } = useIndividual();
   const { log } = useEvent();
 
-  const singles = computed(() => people.value.filter((individual) => {
-    const individualLog = getLog(individual);
-    return !individualLog.some(event => event.type === 'COUPLING');
-  }));
+  const singles = computed(() =>
+    people.value.filter((individual) => {
+      const individualLog = getLog(individual);
+      return !individualLog.some(event => event.type === 'COUPLING');
+    }),
+  );
 
-  const couples = computed(() => log.value.reduce<Array<Collective<2>>>((result, event) => {
-    if (event.type === 'COUPLING') {
-      const { collective } = (event as Emitted<CouplingEvent>).payload;
-      if (collective.every(isAlive)) {
-        result.push(collective);
+  const couples = computed(() =>
+    log.value.reduce<Array<Collective<2>>>((result, event) => {
+      if (event.type === 'COUPLING') {
+        const { collective } = (event as Emitted<CouplingEvent>).payload;
+        if (collective.every(isAlive)) {
+          result.push(collective);
+        }
       }
-    }
-    return result;
-  }, []));
+      return result;
+    }, []),
+  );
 
   function getCouplingEvents(day = 0) {
     if (day === 0) {
