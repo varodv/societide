@@ -1,4 +1,10 @@
-import type { AnyCollectiveEvent, AnyIndividualEvent, Emitted, Individual } from './types';
+import type {
+  AnyCollectiveEvent,
+  AnyIndividualEvent,
+  BirthEvent,
+  Emitted,
+  Individual,
+} from './types';
 
 const AGE_DAYS_MULTIPLIER = 365;
 
@@ -10,6 +16,9 @@ function useIndividual() {
     return log.value.filter(
       event =>
         (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === individual.id
+        || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(
+          parent => parent?.id === individual.id,
+        )
         || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
           currentIndividual => currentIndividual.id === individual.id,
         ),
@@ -36,10 +45,24 @@ function useIndividual() {
     return !deathEvent;
   }
 
+  function getChildren(individual: Individual) {
+    const individualLog = getLog(individual);
+    return individualLog.reduce<Array<Individual>>((result, event) => {
+      if (event.type === 'BIRTH') {
+        const { individual: child } = (event as Emitted<BirthEvent>).payload;
+        if (child.parents.some(parent => parent?.id === individual.id)) {
+          result.push(child);
+        }
+      }
+      return result;
+    }, []);
+  }
+
   return {
     getLog,
     getAge,
     isAlive,
+    getChildren,
   };
 }
 

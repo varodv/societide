@@ -5,6 +5,7 @@ const useGame = createSharedComposable(() => {
   const { create } = useEntity();
   const { day } = useTime();
   const { getDeathEvents } = useDeath();
+  const { getBirthEvents } = useBirth();
   const { getCouplingEvents } = useCoupling();
 
   function play() {
@@ -26,6 +27,10 @@ const useGame = createSharedComposable(() => {
     const deathEvents = getDeathEvents(value);
     if (deathEvents.length > 0) {
       emit(...deathEvents);
+    }
+    const birthEvents = getBirthEvents(value);
+    if (birthEvents.length > 0) {
+      emit(...birthEvents);
     }
     const couplingEvents = getCouplingEvents(value);
     if (couplingEvents.length > 0) {
