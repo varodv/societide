@@ -1,4 +1,4 @@
-import type { AnyIndividualEvent, Emitted, Individual } from './types';
+import type { AnyCollectiveEvent, AnyIndividualEvent, Emitted, Individual } from './types';
 
 const AGE_DAYS_MULTIPLIER = 365;
 
@@ -8,7 +8,11 @@ function useIndividual() {
 
   function getLog(individual: Individual) {
     return log.value.filter(
-      event => (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === individual.id,
+      event =>
+        (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === individual.id
+        || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
+          currentIndividual => currentIndividual.id === individual.id,
+        ),
     );
   }
 

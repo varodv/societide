@@ -1,4 +1,6 @@
 export * from './birth';
+export * from './collective';
+export * from './coupling';
 export * from './death';
 export * from './entity';
 export * from './event';
