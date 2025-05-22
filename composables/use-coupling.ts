@@ -33,7 +33,14 @@ function useCoupling() {
       return [];
     }
     return singles.value.reduce<Array<CouplingEvent>>((result, individual, index, array) => {
-      const candidates = array.slice(index + 1);
+      const candidates = array
+        .slice(index + 1)
+        .filter(
+          candidate =>
+            !candidate.parents.some(parent =>
+              individual.parents.some(currentParent => currentParent?.id === parent?.id),
+            ),
+        );
       const bestMatch = findBestMatch(individual, candidates);
       if (bestMatch) {
         const roll = Math.random();
