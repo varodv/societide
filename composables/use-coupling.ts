@@ -7,6 +7,10 @@ function useCoupling() {
 
   const singles = computed(() =>
     people.value.filter((individual) => {
+      const age = getAge(individual) / MILLISECONDS_IN_A_YEAR;
+      if (age < 18) {
+        return false;
+      }
       const individualLog = getLog(individual);
       return !individualLog.some(event => event.type === 'COUPLING');
     }),
@@ -63,11 +67,7 @@ function useCoupling() {
     return bestMatch;
   }
 
-  function getDailyCouplingChance(individual: Individual) {
-    const age = getAge(individual) / MILLISECONDS_IN_A_YEAR;
-    if (age < 18) {
-      return 0;
-    }
+  function getDailyCouplingChance(_individual: Individual) {
     const times = ((100 - 18) * 365) / AGE_DAYS_MULTIPLIER;
     return getPartialChance(0.8, times);
   }
