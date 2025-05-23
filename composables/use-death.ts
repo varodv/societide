@@ -1,7 +1,13 @@
 import type { DeathEvent, Individual } from './types';
 
 const MAX_AGE = 100;
-const DEATH_CHANCES = [[18, 0], [40, 0.01], [64, 0.1], [80, 0.35], [MAX_AGE, 0.5]];
+const DEATH_CHANCES = [
+  [18, 0],
+  [40, 0.01],
+  [64, 0.1],
+  [80, 0.35],
+  [MAX_AGE, 0.5],
+];
 
 function useDeath() {
   const { people } = useSociety();
