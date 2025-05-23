@@ -17,7 +17,7 @@ function useIndividual() {
       event =>
         (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === individual.id
         || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(
-          parent => parent?.id === individual.id,
+          parent => parent === individual.id,
         )
         || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
           currentIndividual => currentIndividual.id === individual.id,
@@ -50,7 +50,7 @@ function useIndividual() {
     return individualLog.reduce<Array<Individual>>((result, event) => {
       if (event.type === 'BIRTH') {
         const { individual: child } = (event as Emitted<BirthEvent>).payload;
-        if (child.parents.some(parent => parent?.id === individual.id)) {
+        if (child.parents.includes(individual.id)) {
           result.push(child);
         }
       }

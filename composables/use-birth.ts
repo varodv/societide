@@ -16,7 +16,7 @@ function useBirth() {
           type: 'BIRTH',
           payload: {
             individual: create({
-              parents: couple,
+              parents: [couple[0].id, couple[1].id],
             }),
           },
         });

@@ -36,10 +36,7 @@ function useCoupling() {
       const candidates = array
         .slice(index + 1)
         .filter(
-          candidate =>
-            !candidate.parents.some(parent =>
-              individual.parents.some(currentParent => currentParent?.id === parent?.id),
-            ),
+          candidate => !candidate.parents.some(parent => individual.parents.includes(parent)),
         );
       const bestMatch = findBestMatch(individual, candidates);
       if (bestMatch) {

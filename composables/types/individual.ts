@@ -2,7 +2,7 @@ import type { Entity } from './entity';
 import type { Event } from './event';
 
 type Individual = Entity<{
-  parents: [Individual?, Individual?];
+  parents: [Individual['id']?, Individual['id']?];
 }>;
 
 type IndividualEvent<
