@@ -1,5 +1,8 @@
 import type { DeathEvent, Individual } from './types';
 
+const MAX_AGE = 100;
+const DEATH_CHANCES = [[18, 0], [40, 0.01], [64, 0.1], [80, 0.35], [MAX_AGE, 0.5]];
+
 function useDeath() {
   const { people } = useSociety();
   const { getAge } = useIndividual();
@@ -24,27 +27,15 @@ function useDeath() {
 
   function getDailyDeathChance(individual: Individual) {
     const age = getAge(individual) / MILLISECONDS_IN_A_YEAR;
-    if (age < 18) {
-      return 0;
-    }
-    const getTimesInRange = (start: number, end: number) => {
-      return ((end - start) * 365) / AGE_DAYS_MULTIPLIER;
-    };
-    let totalChance = 0.01;
-    if (age < 40) {
-      return getPartialChance(totalChance, getTimesInRange(18, 40));
-    }
-    totalChance += 0.1;
-    if (age < 64) {
-      return getPartialChance(totalChance, getTimesInRange(40, 64));
-    }
-    totalChance += 0.35;
-    if (age < 80) {
-      return getPartialChance(totalChance, getTimesInRange(64, 80));
-    }
-    totalChance += 0.5;
-    if (age < 100) {
-      return getPartialChance(totalChance, getTimesInRange(80, 100));
+    let totalChance = 0;
+    let previousAgeLimit = 0;
+    for (const [ageLimit, chance] of DEATH_CHANCES) {
+      totalChance += chance;
+      if (age < ageLimit) {
+        const times = ((ageLimit - previousAgeLimit) * 365) / AGE_DAYS_MULTIPLIER;
+        return getPartialChance(totalChance, times);
+      }
+      previousAgeLimit = ageLimit;
     }
     return 1;
   }
@@ -55,5 +46,7 @@ function useDeath() {
 }
 
 export {
+  DEATH_CHANCES,
+  MAX_AGE,
   useDeath,
 };
