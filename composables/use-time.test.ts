@@ -36,7 +36,7 @@ describe('useTime', () => {
     logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
 
     const { time } = useTime();
-    expect(time.value).toBe(1000);
+    expect(time.value).toBe(DEFAULT_SPEED * 1000);
   });
 
   it('should compute day as undefined if no PLAY event exists', () => {
@@ -49,7 +49,7 @@ describe('useTime', () => {
     logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
 
     const { day } = useTime();
-    expect(day.value).toBe(1);
+    expect(day.value).toBe(DEFAULT_SPEED);
   });
 
   it('should compute paused state correctly', () => {
@@ -138,6 +138,11 @@ describe('useTime', () => {
       {
         type: 'PLAY',
         timestamp: new Date(nowMock.value.getTime() - 5000),
+      },
+      {
+        type: 'SET_SPEED',
+        timestamp: new Date(nowMock.value.getTime() - 5000),
+        payload: { value: 1 },
       },
       {
         type: 'PAUSE',
