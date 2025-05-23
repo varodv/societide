@@ -3,6 +3,8 @@ import type { Emitted, PauseEvent, ResumeEvent, SetSpeedEvent, TimeEvent } from 
 const MILLISECONDS_IN_A_DAY = 86400000;
 const MILLISECONDS_IN_A_YEAR = 31557600000;
 
+const DEFAULT_SPEED = 86400; // [1, 60, 3600, 86400]
+
 function useTime() {
   const { log, emit } = useEvent();
   const now = useNow();
@@ -97,7 +99,7 @@ function useTime() {
     const lastSetSpeedEvent = log.value.findLast(
       event => event.type === 'SET_SPEED' && event.timestamp <= timestamp,
     ) as Emitted<SetSpeedEvent>;
-    return lastSetSpeedEvent?.payload.value ?? 1;
+    return lastSetSpeedEvent?.payload.value ?? DEFAULT_SPEED;
   }
 
   return {
@@ -113,6 +115,7 @@ function useTime() {
 }
 
 export {
+  DEFAULT_SPEED,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_YEAR,
   useTime,
