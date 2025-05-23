@@ -1,5 +1,9 @@
 import type { Collective, CouplingEvent, Emitted, Individual } from './types';
 
+const COUPLING_CHANCE = 0.8;
+const MIN_COUPLING_AGE = 18;
+const MAX_COUPLING_AGE_DIFF = 5;
+
 function useCoupling() {
   const { people } = useSociety();
   const { getLog, getAge, isAlive } = useIndividual();
@@ -8,7 +12,7 @@ function useCoupling() {
   const singles = computed(() =>
     people.value.filter((individual) => {
       const age = getAge(individual) / MILLISECONDS_IN_A_YEAR;
-      if (age < 18) {
+      if (age < MIN_COUPLING_AGE) {
         return false;
       }
       const individualLog = getLog(individual);
@@ -19,9 +23,9 @@ function useCoupling() {
   const couples = computed(() =>
     log.value.reduce<Array<Collective<2>>>((result, event) => {
       if (event.type === 'COUPLING') {
-        const { collective } = (event as Emitted<CouplingEvent>).payload;
-        if (collective.every(isAlive)) {
-          result.push(collective);
+        const { collective: couple } = (event as Emitted<CouplingEvent>).payload;
+        if (couple.every(isAlive)) {
+          result.push(couple);
         }
       }
       return result;
@@ -63,7 +67,7 @@ function useCoupling() {
       const ageDiff = Math.abs(individualAge - candidateAge);
       if (ageDiff < minAgeDiff) {
         minAgeDiff = ageDiff;
-        if (ageDiff < 5) {
+        if (ageDiff <= MAX_COUPLING_AGE_DIFF) {
           bestMatch = candidate;
         }
       }
@@ -72,8 +76,8 @@ function useCoupling() {
   }
 
   function getDailyCouplingChance(_individual: Individual) {
-    const times = ((100 - 18) * 365) / AGE_DAYS_MULTIPLIER;
-    return getPartialChance(0.8, times);
+    const times = ((MAX_AGE - MIN_COUPLING_AGE) * 365) / AGE_DAYS_MULTIPLIER;
+    return getPartialChance(COUPLING_CHANCE, times);
   }
 
   return {
@@ -84,5 +88,8 @@ function useCoupling() {
 }
 
 export {
+  COUPLING_CHANCE,
+  MAX_COUPLING_AGE_DIFF,
+  MIN_COUPLING_AGE,
   useCoupling,
 };
