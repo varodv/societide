@@ -1,5 +1,7 @@
 import type { Emitted, PlayEvent } from './types';
 
+const INITIAL_POPULATION = 100;
+
 const useGame = createSharedComposable(() => {
   const { emit, reset } = useEvent();
   const { create } = useEntity();
@@ -12,7 +14,7 @@ const useGame = createSharedComposable(() => {
     reset();
     return emit(
       { type: 'PLAY' },
-      ...Array.from({ length: 100 }, () => ({
+      ...Array.from({ length: INITIAL_POPULATION }, () => ({
         type: 'BIRTH',
         payload: {
           individual: create({
@@ -44,5 +46,6 @@ const useGame = createSharedComposable(() => {
 });
 
 export {
+  INITIAL_POPULATION,
   useGame,
 };
