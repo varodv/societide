@@ -3,8 +3,9 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": "^22.15",
+    "node": "^22.16",
     "pnpm": "^10"
   },
   "scripts": {
@@ -22,9 +23,17 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@tailwindcss/vite": "4.1.7",
     "@vueuse/core": "13.1.0",
     "@vueuse/nuxt": "13.1.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
     "nuxt": "3.17.1",
+    "reka-ui": "2.2.1",
+    "shadcn-nuxt": "2.1.0",
+    "tailwind-merge": "3.3.0",
+    "tailwindcss": "4.1.7",
+    "tw-animate-css": "1.3.0",
     "vue": "3.5.13",
     "vue-router": "4.5.1"
   },

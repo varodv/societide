@@ -1,7 +1,8 @@
 {
   "recommendations": [
-    "editorconfig.editorconfig",
+    "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
     "github.vscode-github-actions"
   ]
 }

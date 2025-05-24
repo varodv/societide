@@ -21,7 +21,7 @@ export default antfu(
     },
   },
   {
-    ignores: ['**/*.json', '**/*.md'],
+    ignores: ['**/*.json', '**/*.md', 'components/ui/**'],
     rules: {
       'max-len': [
         'error',

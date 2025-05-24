@@ -8,6 +8,7 @@ export default defineVitestConfig({
         ...coverageConfigDefaults.exclude,
         'nuxt.config.ts',
         '**/types',
+        'components/ui/**',
       ],
     },
     environment: 'nuxt',
