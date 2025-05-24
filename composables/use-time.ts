@@ -3,7 +3,8 @@ import type { Emitted, PauseEvent, ResumeEvent, SetSpeedEvent, TimeEvent } from 
 const MILLISECONDS_IN_A_DAY = 86400000;
 const MILLISECONDS_IN_A_YEAR = 31557600000;
 
-const DEFAULT_SPEED = 86400; // [1, 60, 3600, 86400]
+const SPEEDS = [1, 60, 3600, 86400];
+const DEFAULT_SPEED = SPEEDS[3];
 
 function useTime() {
   const { log, emit } = useEvent();
@@ -118,5 +119,6 @@ export {
   DEFAULT_SPEED,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_YEAR,
+  SPEEDS,
   useTime,
 };
