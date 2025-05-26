@@ -2,6 +2,7 @@ import type {
   AnyCollectiveEvent,
   AnyIndividualEvent,
   BirthEvent,
+  CouplingEvent,
   Emitted,
   Individual,
 } from './types';
@@ -45,6 +46,16 @@ function useIndividual() {
     return !deathEvent;
   }
 
+  function getCouple(individual: Individual) {
+    const individualLog = getLog(individual);
+    const couplingEvent = individualLog.find(event => event.type === 'COUPLING');
+    if (!couplingEvent) {
+      return;
+    }
+    const { collective: couple } = (couplingEvent as Emitted<CouplingEvent>).payload;
+    return couple.find(currentIndividual => currentIndividual.id !== individual.id);
+  }
+
   function getChildren(individual: Individual) {
     const individualLog = getLog(individual);
     return individualLog.reduce<Array<Individual>>((result, event) => {
@@ -62,6 +73,7 @@ function useIndividual() {
     getLog,
     getAge,
     isAlive,
+    getCouple,
     getChildren,
   };
 }
