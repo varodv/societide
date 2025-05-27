@@ -1,8 +1,10 @@
-import type { AnyEvent, Emitted } from './types';
+import type { AnyEvent, Emitted, Subscriber } from './types';
 
 const useEvent = createSharedComposable(() => {
   const { create } = useEntity();
   const now = useNow();
+
+  const subscribers: Array<Subscriber> = [];
 
   const log = useLocalStorage<Array<Emitted<AnyEvent>>>('log', [], {
     serializer: {
@@ -28,7 +30,41 @@ const useEvent = createSharedComposable(() => {
       }),
     );
     log.value.push(...emittedEvents);
+    subscribers.forEach((subscriber) => {
+      const subscriberEvents = emittedEvents.filter(subscriber.filter);
+      if (subscriberEvents.length > 0) {
+        subscriber.callback(...subscriberEvents);
+      }
+    });
     return emittedEvents;
+  }
+
+  function subscribe(
+    filter: Subscriber['filter'],
+    callback: Subscriber['callback'],
+    options: Subscriber['options'] = {},
+  ) {
+    const subscriber = create({
+      filter,
+      callback,
+      options,
+    });
+    subscribers.push(subscriber);
+    if (options.immediate) {
+      const subscriberEvents = log.value.filter(filter);
+      if (subscriberEvents.length > 0) {
+        callback(...subscriberEvents);
+      }
+    }
+    return subscriber.id;
+  }
+
+  function unsubscribe(id: Subscriber['id']) {
+    const index = subscribers.findIndex(subscriber => subscriber.id === id);
+    if (index < 0) {
+      throw new Error ('The given subscriber does not exist');
+    }
+    subscribers.splice(index, 1);
   }
 
   function reset() {
@@ -38,6 +74,8 @@ const useEvent = createSharedComposable(() => {
   return {
     log,
     emit,
+    subscribe,
+    unsubscribe,
     reset,
   };
 });

@@ -9,8 +9,17 @@ type AnyEvent = Event<string, undefined | Record<string, any>>;
 
 type Emitted<EventType extends AnyEvent> = Entity<EventType & { timestamp: Date }>;
 
+type Subscriber = Entity<{
+  filter: (event: Emitted<AnyEvent>) => boolean;
+  callback: (...events: Array<Emitted<AnyEvent>>) => void;
+  options?: {
+    immediate?: boolean;
+  };
+}>;
+
 export type {
   AnyEvent,
   Emitted,
   Event,
+  Subscriber,
 };
