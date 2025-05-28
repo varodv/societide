@@ -1,80 +1,100 @@
 import type {
   AnyCollectiveEvent,
+  AnyEvent,
   AnyIndividualEvent,
   BirthEvent,
   CouplingEvent,
+  DeathEvent,
   Emitted,
   Individual,
+  IndividualComposable,
 } from './types';
 
 const AGE_DAYS_MULTIPLIER = 365;
 
-function useIndividual() {
-  const { log } = useEvent();
+const instances: Record<Individual['id'], IndividualComposable> = {};
+
+function useIndividual({ id }: { id: Individual['id'] }) {
+  if (!(id in instances)) {
+    instances[id] = createComposable({ id });
+  }
+  return instances[id];
+}
+
+function createComposable({ id }: { id: Individual['id'] }): IndividualComposable {
+  const { subscribe } = useEvent();
   const { getTimeSince } = useTime();
 
-  function getLog(individual: Individual) {
-    return log.value.filter(
-      event =>
-        (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === individual.id
-        || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(
-          parent => parent === individual.id,
-        )
-        || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
-          currentIndividual => currentIndividual.id === individual.id,
-        ),
+  const log = ref<Array<Emitted<AnyEvent>>>([]);
+  subscribe(
+    event =>
+      (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === id
+      || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
+        currentId => currentId === id,
+      )
+      || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(
+        parent => parent === id,
+      ),
+    (...events: Array<Emitted<AnyEvent>>) => log.value.push(...events),
+    {
+      immediate: true,
+    },
+  );
+
+  const birthEvent = log.value.find(
+    event => event.type === 'BIRTH',
+  ) as Emitted<BirthEvent> | undefined;
+  if (!birthEvent) {
+    throw new Error('The given individual does not exist');
+  }
+
+  const parents = birthEvent.payload.individual.parents.map(
+    parent => useIndividual({ id: parent }),
+  ) as IndividualComposable['parents'];
+
+  const deathEvent = computed(() =>
+    log.value.find(event => event.type === 'DEATH') as Emitted<DeathEvent> | undefined,
+  );
+
+  const alive = computed(() => !deathEvent.value);
+
+  const age = computed(() => {
+    return Math.round(
+      getTimeSince(birthEvent.timestamp, deathEvent.value?.timestamp)
+      * AGE_DAYS_MULTIPLIER
+      / MILLISECONDS_IN_A_YEAR,
     );
-  }
+  });
 
-  function getAge(individual: Individual) {
-    const individualLog = getLog(individual);
-    const birthEvent = individualLog.find(event => event.type === 'BIRTH');
-    if (!birthEvent) {
-      throw new Error('The given individual does not exist');
-    }
-    const deathEvent = individualLog.find(event => event.type === 'DEATH');
-    return getTimeSince(birthEvent.timestamp, deathEvent?.timestamp) * AGE_DAYS_MULTIPLIER;
-  }
-
-  function isAlive(individual: Individual) {
-    const individualLog = getLog(individual);
-    const birthEvent = individualLog.find(event => event.type === 'BIRTH');
-    if (!birthEvent) {
-      throw new Error('The given individual does not exist');
-    }
-    const deathEvent = individualLog.find(event => event.type === 'DEATH');
-    return !deathEvent;
-  }
-
-  function getCouple(individual: Individual) {
-    const individualLog = getLog(individual);
-    const couplingEvent = individualLog.find(event => event.type === 'COUPLING');
+  const couple = computed(() => {
+    const couplingEvent = log.value.find(event => event.type === 'COUPLING');
     if (!couplingEvent) {
       return;
     }
     const { collective: couple } = (couplingEvent as Emitted<CouplingEvent>).payload;
-    return couple.find(currentIndividual => currentIndividual.id !== individual.id);
-  }
+    return useIndividual({ id: couple.find(currentId => currentId !== id)! });
+  });
 
-  function getChildren(individual: Individual) {
-    const individualLog = getLog(individual);
-    return individualLog.reduce<Array<Individual>>((result, event) => {
+  const children = computed(() =>
+    log.value.reduce<Array<IndividualComposable>>((result, event) => {
       if (event.type === 'BIRTH') {
         const { individual: child } = (event as Emitted<BirthEvent>).payload;
-        if (child.parents.includes(individual.id)) {
-          result.push(child);
+        if (child.id !== id) {
+          result.push(useIndividual({ id: child.id }));
         }
       }
       return result;
-    }, []);
-  }
+    }, []),
+  );
 
   return {
-    getLog,
-    getAge,
-    isAlive,
-    getCouple,
-    getChildren,
+    id,
+    parents,
+    log,
+    alive,
+    age,
+    couple,
+    children,
   };
 }
 

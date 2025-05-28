@@ -11,7 +11,6 @@ const DEATH_CHANCES = [
 
 function useDeath() {
   const { people } = useSociety();
-  const { getAge } = useIndividual();
 
   function getDeathEvents(day = 0) {
     if (day === 0) {
@@ -32,10 +31,10 @@ function useDeath() {
   }
 
   function getDailyDeathChance(individual: Individual) {
-    const age = getAge(individual) / MILLISECONDS_IN_A_YEAR;
+    const { age } = useIndividual({ id: individual.id });
     let previousAgeLimit = 0;
     for (const [ageLimit, chance] of DEATH_CHANCES) {
-      if (age < ageLimit) {
+      if (age.value < ageLimit) {
         const times = ((ageLimit - previousAgeLimit) * 365) / AGE_DAYS_MULTIPLIER;
         return getPartialChance(chance, times);
       }

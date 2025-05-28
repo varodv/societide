@@ -1,35 +1,47 @@
-import type { Collective, CouplingEvent, Emitted, Individual } from './types';
+import type { AnyEvent, Collective, CouplingEvent, DeathEvent, Emitted, Individual } from './types';
 
 const COUPLING_CHANCE = 0.8;
 const MIN_COUPLING_AGE = 18;
 const MAX_COUPLING_AGE_DIFF = 5;
 
-function useCoupling() {
+const useCoupling = createSharedComposable(() => {
+  const { subscribe } = useEvent();
   const { people } = useSociety();
-  const { getLog, getAge, isAlive } = useIndividual();
-  const { log } = useEvent();
+
+  const couples = ref<Array<Collective<2>>>([]);
+  subscribe(
+    event => event.type === 'COUPLING',
+    (...events: Array<Emitted<AnyEvent>>) => {
+      events.forEach((event) => {
+        const { collective } = (event as Emitted<CouplingEvent>).payload;
+        couples.value.push(collective);
+      });
+    },
+    {
+      immediate: true,
+    },
+  );
+  subscribe(
+    event => event.type === 'DEATH',
+    (...events: Array<Emitted<AnyEvent>>) => {
+      events.forEach((event) => {
+        const { individual } = (event as Emitted<DeathEvent>).payload;
+        const index = couples.value.findIndex(couple => couple.includes(individual.id));
+        if (index >= 0) {
+          couples.value.splice(index, 1);
+        }
+      });
+    },
+    {
+      immediate: true,
+    },
+  );
 
   const singles = computed(() =>
     people.value.filter((individual) => {
-      const age = getAge(individual) / MILLISECONDS_IN_A_YEAR;
-      if (age < MIN_COUPLING_AGE) {
-        return false;
-      }
-      const individualLog = getLog(individual);
-      return !individualLog.some(event => event.type === 'COUPLING');
+      const { age, couple } = useIndividual({ id: individual.id });
+      return age.value >= MIN_COUPLING_AGE && !couple.value;
     }),
-  );
-
-  const couples = computed(() =>
-    log.value.reduce<Array<Collective<2>>>((result, event) => {
-      if (event.type === 'COUPLING') {
-        const { collective: couple } = (event as Emitted<CouplingEvent>).payload;
-        if (couple.every(isAlive)) {
-          result.push(couple);
-        }
-      }
-      return result;
-    }, []),
   );
 
   function getCouplingEvents(day = 0) {
@@ -49,7 +61,7 @@ function useCoupling() {
           result.push({
             type: 'COUPLING',
             payload: {
-              collective: [individual, bestMatch],
+              collective: [individual.id, bestMatch.id],
             },
           });
         }
@@ -60,11 +72,11 @@ function useCoupling() {
 
   function findBestMatch(individual: Individual, candidates: Array<Individual>) {
     let bestMatch: Individual | undefined;
-    const individualAge = getAge(individual) / MILLISECONDS_IN_A_YEAR;
+    const { age: individualAge } = useIndividual({ id: individual.id });
     let minAgeDiff = Infinity;
     for (const candidate of candidates) {
-      const candidateAge = getAge(candidate) / MILLISECONDS_IN_A_YEAR;
-      const ageDiff = Math.abs(individualAge - candidateAge);
+      const { age: candidateAge } = useIndividual({ id: candidate.id });
+      const ageDiff = Math.abs(individualAge.value - candidateAge.value);
       if (ageDiff < minAgeDiff) {
         minAgeDiff = ageDiff;
         if (ageDiff <= MAX_COUPLING_AGE_DIFF) {
@@ -81,11 +93,10 @@ function useCoupling() {
   }
 
   return {
-    singles,
     couples,
     getCouplingEvents,
   };
-}
+});
 
 export {
   COUPLING_CHANCE,

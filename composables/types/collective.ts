@@ -1,7 +1,8 @@
 import type { Event } from './event';
 import type { Individual } from './individual';
+import type { FixedArray } from './shared';
 
-type Collective<Length extends number = number> = Array<Individual> & { length: Length };
+type Collective<Length extends number = number> = FixedArray<Individual['id'], Length>;
 
 type CollectiveEvent<
   Type extends string,
