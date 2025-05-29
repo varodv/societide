@@ -22,11 +22,11 @@ function useIndividual({ id }: { id: Individual['id'] }) {
 }
 
 function createComposable({ id }: { id: Individual['id'] }): IndividualComposable {
-  const { subscribe } = useEvent();
+  const { subscribe, unsubscribe } = useEvent();
   const { getTimeSince } = useTime();
 
   const log = ref<Array<Emitted<AnyEvent>>>([]);
-  subscribe(
+  const subscriptionId = subscribe(
     event =>
       (event as Emitted<AnyIndividualEvent>).payload?.individual?.id === id
       || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
@@ -35,7 +35,12 @@ function createComposable({ id }: { id: Individual['id'] }): IndividualComposabl
       || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(
         parent => parent === id,
       ),
-    (...events: Array<Emitted<AnyEvent>>) => log.value.push(...events),
+    (...events: Array<Emitted<AnyEvent>>) => {
+      log.value.push(...events);
+      if (events.some(event => event.type === 'DEATH')) {
+        unsubscribe(subscriptionId);
+      }
+    },
     {
       immediate: true,
     },
