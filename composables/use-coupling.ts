@@ -70,6 +70,10 @@ const useCoupling = createSharedComposable(() => {
     }, []);
   }
 
+  function reset() {
+    couples.value = [];
+  }
+
   function findBestMatch(individual: Individual, candidates: Array<Individual>) {
     let bestMatch: Individual | undefined;
     const { age: individualAge } = useIndividual({ id: individual.id });
@@ -95,6 +99,7 @@ const useCoupling = createSharedComposable(() => {
   return {
     couples,
     getCouplingEvents,
+    reset,
   };
 });
 

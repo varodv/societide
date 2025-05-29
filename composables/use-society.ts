@@ -32,8 +32,13 @@ const useSociety = createSharedComposable(() => {
     },
   );
 
+  function reset() {
+    people.value = [];
+  }
+
   return {
     people,
+    reset,
   };
 });
 

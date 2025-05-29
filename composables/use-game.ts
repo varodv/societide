@@ -3,15 +3,18 @@ import type { Emitted, PlayEvent } from './types';
 const INITIAL_POPULATION = 100;
 
 const useGame = createSharedComposable(() => {
-  const { emit, reset } = useEvent();
+  const { emit, reset: resetEvent } = useEvent();
+  const { reset: resetSociety } = useSociety();
   const { create } = useEntity();
   const { day } = useTime();
   const { getDeathEvents } = useDeath();
   const { getBirthEvents } = useBirth();
-  const { getCouplingEvents } = useCoupling();
+  const { getCouplingEvents, reset: resetCoupling } = useCoupling();
 
   function play() {
-    reset();
+    resetEvent();
+    resetSociety();
+    resetCoupling();
     return emit(
       { type: 'PLAY' },
       ...Array.from({ length: INITIAL_POPULATION }, () => ({
