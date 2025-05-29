@@ -1,10 +1,10 @@
-import type { AnyEvent, Emitted, Subscriber } from './types';
+import type { AnyEvent, Emitted, Subscription } from './types';
 
 const useEvent = createSharedComposable(() => {
   const { create } = useEntity();
   const now = useNow();
 
-  const subscribers: Array<Subscriber> = [];
+  const subscriptions: Array<Subscription> = [];
 
   const log = useLocalStorage<Array<Emitted<AnyEvent>>>('log', [], {
     serializer: {
@@ -30,41 +30,41 @@ const useEvent = createSharedComposable(() => {
       }),
     );
     log.value.push(...emittedEvents);
-    subscribers.forEach((subscriber) => {
-      const subscriberEvents = emittedEvents.filter(subscriber.filter);
-      if (subscriberEvents.length > 0) {
-        subscriber.callback(...subscriberEvents);
+    subscriptions.forEach((subscription) => {
+      const subscriptionEvents = emittedEvents.filter(subscription.filter);
+      if (subscriptionEvents.length > 0) {
+        subscription.callback(...subscriptionEvents);
       }
     });
     return emittedEvents;
   }
 
   function subscribe(
-    filter: Subscriber['filter'],
-    callback: Subscriber['callback'],
-    options: Subscriber['options'] = {},
+    filter: Subscription['filter'],
+    callback: Subscription['callback'],
+    options: Subscription['options'] = {},
   ) {
-    const subscriber = create({
+    const subscription = create({
       filter,
       callback,
       options,
     });
-    subscribers.push(subscriber);
+    subscriptions.push(subscription);
     if (options.immediate) {
-      const subscriberEvents = log.value.filter(filter);
-      if (subscriberEvents.length > 0) {
-        callback(...subscriberEvents);
+      const subscriptionEvents = log.value.filter(filter);
+      if (subscriptionEvents.length > 0) {
+        callback(...subscriptionEvents);
       }
     }
-    return subscriber.id;
+    return subscription.id;
   }
 
-  function unsubscribe(id: Subscriber['id']) {
-    const index = subscribers.findIndex(subscriber => subscriber.id === id);
+  function unsubscribe(id: Subscription['id']) {
+    const index = subscriptions.findIndex(subscription => subscription.id === id);
     if (index < 0) {
-      throw new Error ('The given subscriber does not exist');
+      throw new Error ('The given subscription does not exist');
     }
-    subscribers.splice(index, 1);
+    subscriptions.splice(index, 1);
   }
 
   function reset() {

@@ -108,7 +108,7 @@ describe('useEvent', () => {
     unsubscribe(id);
   });
 
-  it('should unsubscribe a subscriber by id', () => {
+  it('should remove a subscription by id', () => {
     const { subscribe, emit, unsubscribe } = useEvent();
     const callback = vi.fn();
     const filter = () => true;
@@ -122,9 +122,9 @@ describe('useEvent', () => {
     expect(callback).toHaveBeenCalledTimes(1); // No further calls after unsubscribe
   });
 
-  it('should throw if unsubscribing a non-existent subscriber', () => {
+  it('should throw if removing a non-existent subscription', () => {
     const { unsubscribe } = useEvent();
-    expect(() => unsubscribe('non-existent-id')).toThrow('The given subscriber does not exist');
+    expect(() => unsubscribe('non-existent-id')).toThrow('The given subscription does not exist');
   });
 
   it('should reset the log to an empty array', () => {
