@@ -9,20 +9,16 @@ vi.mock(import('@vueuse/core'), async importOriginal => ({
 }));
 
 describe('useEvent', () => {
-  let createMock: ReturnType<typeof vi.fn>;
-  let storageMock: { value: any };
-  let nowMock: { value: Date };
+  const createMock = vi.fn(event => ({ ...event, id: 'unique-id' }));
+  (useEntity as any).mockReturnValue({ create: createMock });
+
+  const storageMock = { value: [] };
+  (useLocalStorage as any).mockReturnValue(storageMock);
+
+  const nowMock = { value: new Date() };
+  (useNow as any).mockReturnValue(nowMock);
 
   beforeEach(() => {
-    createMock = vi.fn(event => ({ ...event, id: 'unique-id' }));
-    (useEntity as any).mockReturnValue({ create: createMock });
-
-    storageMock = { value: [] };
-    (useLocalStorage as any).mockReturnValue(storageMock);
-
-    nowMock = { value: new Date() };
-    (useNow as any).mockReturnValue(nowMock);
-
     useEvent().reset();
   });
 

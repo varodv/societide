@@ -6,7 +6,7 @@ import {
   MILLISECONDS_IN_AN_HOUR,
 } from '@/composables/use-time';
 
-const { time, day, paused, speed, pause, resume, setSpeed } = useTime();
+const { paused, speed, time, day, pause, resume, setSpeed } = useTime();
 
 const calendar = computed(() => String(day.value ?? 0).padStart(4, '0'));
 

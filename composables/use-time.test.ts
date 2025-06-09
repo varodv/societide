@@ -1,29 +1,31 @@
+import type { Subscription } from './types';
 import { MILLISECONDS_IN_A_DAY, useTime } from './use-time';
 
 vi.mock('./use-event', () => ({
   useEvent: vi.fn(),
 }));
 
-vi.mock('@vueuse/core', () => ({
+vi.mock(import('@vueuse/core'), async importOriginal => ({
+  ...(await importOriginal()),
   useNow: vi.fn(),
 }));
 
 describe('useTime', () => {
-  let logMock: { value: any[] };
-  let emitMock: ReturnType<typeof vi.fn>;
-  let nowMock: { value: Date };
+  const emitMock = vi.fn().mockImplementation(event => event);
+  let callback: Subscription['callback'];
+  const subscribeMock = vi.fn().mockImplementation((filter, cb) => {
+    callback = cb;
+  });
+  (useEvent as any).mockReturnValue({
+    emit: emitMock,
+    subscribe: subscribeMock,
+  });
+
+  const nowMock = { value: new Date() };
+  (useNow as any).mockReturnValue(nowMock);
 
   beforeEach(() => {
-    logMock = { value: [] };
-    emitMock = vi.fn().mockImplementation(event => event);
-    nowMock = { value: new Date() };
-
-    (useEvent as any).mockReturnValue({
-      log: logMock,
-      emit: emitMock,
-    });
-
-    (useNow as any).mockReturnValue(nowMock);
+    useTime().reset();
   });
 
   it('should compute time as undefined if no PLAY event exists', () => {
@@ -33,7 +35,7 @@ describe('useTime', () => {
 
   it('should compute time since the PLAY event', () => {
     const playTimestamp = new Date(nowMock.value.getTime() - 1000);
-    logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
+    callback({ id: '123', type: 'PLAY', timestamp: playTimestamp });
 
     const { time } = useTime();
     expect(time.value).toBe(DEFAULT_SPEED * 1000);
@@ -46,7 +48,7 @@ describe('useTime', () => {
 
   it('should compute day since the PLAY event', () => {
     const playTimestamp = new Date(nowMock.value.getTime() - MILLISECONDS_IN_A_DAY);
-    logMock.value.push({ type: 'PLAY', timestamp: playTimestamp });
+    callback({ id: '123', type: 'PLAY', timestamp: playTimestamp });
 
     const { day } = useTime();
     expect(day.value).toBe(DEFAULT_SPEED);
@@ -54,7 +56,7 @@ describe('useTime', () => {
 
   it('should compute paused state correctly', () => {
     const pauseTimestamp = new Date(nowMock.value.getTime() - 1000);
-    logMock.value.push({ type: 'PAUSE', timestamp: pauseTimestamp });
+    callback({ id: '123', type: 'PAUSE', timestamp: pauseTimestamp });
 
     const { paused } = useTime();
     expect(paused.value).toBe(true);
@@ -62,7 +64,8 @@ describe('useTime', () => {
 
   it('should compute speed correctly', () => {
     const setSpeedTimestamp = new Date(nowMock.value.getTime() - 1000);
-    logMock.value.push({
+    callback({
+      id: '123',
       type: 'SET_SPEED',
       timestamp: setSpeedTimestamp,
       payload: { value: 2 },
@@ -78,15 +81,17 @@ describe('useTime', () => {
   });
 
   it('should throw an error when pausing while already paused', () => {
-    logMock.value.push({ type: 'PLAY', timestamp: new Date() });
-    logMock.value.push({ type: 'PAUSE', timestamp: new Date() });
+    callback(
+      { id: '123', type: 'PLAY', timestamp: new Date() },
+      { id: '123', type: 'PAUSE', timestamp: new Date() },
+    );
 
     const { pause } = useTime();
     expect(() => pause()).toThrowError('The game is already paused');
   });
 
   it('should emit a PAUSE event', () => {
-    logMock.value.push({ type: 'PLAY', timestamp: new Date() });
+    callback({ id: '123', type: 'PLAY', timestamp: new Date() });
 
     const { pause } = useTime();
     pause();
@@ -100,15 +105,17 @@ describe('useTime', () => {
   });
 
   it('should throw an error when resuming while not paused', () => {
-    logMock.value.push({ type: 'PLAY', timestamp: new Date() });
+    callback({ id: '123', type: 'PLAY', timestamp: new Date() });
 
     const { resume } = useTime();
     expect(() => resume()).toThrowError('The game is not paused');
   });
 
   it('should emit a RESUME event', () => {
-    logMock.value.push({ type: 'PLAY', timestamp: new Date() });
-    logMock.value.push({ type: 'PAUSE', timestamp: new Date() });
+    callback(
+      { id: '123', type: 'PLAY', timestamp: new Date() },
+      { id: '123', type: 'PAUSE', timestamp: new Date() },
+    );
 
     const { resume } = useTime();
     resume();
@@ -122,7 +129,7 @@ describe('useTime', () => {
   });
 
   it('should emit a SET_SPEED event', () => {
-    logMock.value.push({ type: 'PLAY', timestamp: new Date() });
+    callback({ id: '123', type: 'PLAY', timestamp: new Date() });
 
     const { setSpeed } = useTime();
     setSpeed(2);
@@ -134,30 +141,36 @@ describe('useTime', () => {
   });
 
   it('should calculate time since a timestamp correctly', () => {
-    logMock.value.push(
+    callback(
       {
+        id: '123',
         type: 'PLAY',
         timestamp: new Date(nowMock.value.getTime() - 5000),
       },
       {
+        id: '123',
         type: 'SET_SPEED',
         timestamp: new Date(nowMock.value.getTime() - 5000),
         payload: { value: 1 },
       },
       {
+        id: '123',
         type: 'PAUSE',
         timestamp: new Date(nowMock.value.getTime() - 4000),
       },
       {
+        id: '123',
         type: 'RESUME',
         timestamp: new Date(nowMock.value.getTime() - 3000),
       },
       {
+        id: '123',
         type: 'SET_SPEED',
         timestamp: new Date(nowMock.value.getTime() - 2000),
         payload: { value: 2 },
       },
       {
+        id: '123',
         type: 'PAUSE',
         timestamp: new Date(nowMock.value.getTime() - 1000),
       },

@@ -1,4 +1,4 @@
-import type { Emitted, PauseEvent, ResumeEvent, SetSpeedEvent, TimeEvent } from './types';
+import type { AnyEvent, Emitted, PauseEvent, ResumeEvent, SetSpeedEvent, TimeEvent } from './types';
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 const MILLISECONDS_IN_A_MINUTE = MILLISECONDS_IN_A_SECOND * 60;
@@ -14,9 +14,33 @@ const SPEEDS = [
 ];
 const DEFAULT_SPEED = SPEEDS[3];
 
-function useTime() {
-  const { log, emit } = useEvent();
+const useTime = createSharedComposable(() => {
+  const { emit, subscribe } = useEvent();
   const now = useNow();
+
+  const paused = ref(false);
+
+  const speed = ref(DEFAULT_SPEED);
+
+  const log = ref<Array<Emitted<AnyEvent>>>([]);
+  subscribe(
+    event =>
+      event.type === 'PLAY' || event.type === 'PAUSE' || event.type === 'RESUME' || event.type === 'SET_SPEED',
+    (...events: Array<Emitted<AnyEvent>>) => {
+      log.value.push(...events);
+      if (events.length) {
+        const lastTimeEvent = events[events.length - 1];
+        paused.value = lastTimeEvent.type === 'PAUSE';
+        const lastSetSpeedEvent = events.findLast(event => event.type === 'SET_SPEED') as Emitted<SetSpeedEvent> | undefined;
+        if (lastSetSpeedEvent) {
+          speed.value = lastSetSpeedEvent.payload.value;
+        }
+      }
+    },
+    {
+      immediate: true,
+    },
+  );
 
   const time = computed(() => {
     const playEvent = log.value.find(event => event.type === 'PLAY');
@@ -32,10 +56,6 @@ function useTime() {
     }
     return Math.floor(time.value / MILLISECONDS_IN_A_DAY);
   });
-
-  const paused = computed(() => isPausedAt(now.value));
-
-  const speed = computed(() => getSpeedAt(now.value));
 
   function pause() {
     if (!log.value.find(event => event.type === 'PLAY')) {
@@ -95,6 +115,12 @@ function useTime() {
     return partialResult;
   }
 
+  function reset() {
+    log.value = [];
+    paused.value = false;
+    speed.value = DEFAULT_SPEED;
+  }
+
   function isPausedAt(timestamp: Date) {
     const lastTimeEvent = log.value.findLast(
       event =>
@@ -112,16 +138,17 @@ function useTime() {
   }
 
   return {
-    time,
-    day,
     paused,
     speed,
+    time,
+    day,
     pause,
     resume,
     setSpeed,
     getTimeSince,
+    reset,
   };
-}
+});
 
 export {
   DEFAULT_SPEED,
