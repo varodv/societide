@@ -13,8 +13,13 @@ vi.mock(import('@vueuse/core'), async importOriginal => ({
 describe('useTime', () => {
   const emitMock = vi.fn().mockImplementation(event => event);
   let callback: Subscription['callback'];
-  const subscribeMock = vi.fn().mockImplementation((filter, cb) => {
-    callback = cb;
+  const subscribeMock = vi.fn<
+    (
+      filter: Subscription['filter'],
+      callback: Subscription['callback'],
+    ) => void
+  >().mockImplementation((filter, cb) => {
+    callback = (...events) => cb(...events.filter(filter));
   });
   (useEvent as any).mockReturnValue({
     emit: emitMock,
