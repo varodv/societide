@@ -25,13 +25,18 @@ const useTime = createSharedComposable(() => {
   const log = ref<Array<Emitted<AnyEvent>>>([]);
   subscribe(
     event =>
-      event.type === 'PLAY' || event.type === 'PAUSE' || event.type === 'RESUME' || event.type === 'SET_SPEED',
+      event.type === 'PLAY'
+      || event.type === 'PAUSE'
+      || event.type === 'RESUME'
+      || event.type === 'SET_SPEED',
     (...events: Array<Emitted<AnyEvent>>) => {
       log.value.push(...events);
       if (events.length) {
         const lastTimeEvent = events[events.length - 1];
         paused.value = lastTimeEvent.type === 'PAUSE';
-        const lastSetSpeedEvent = events.findLast(event => event.type === 'SET_SPEED') as Emitted<SetSpeedEvent> | undefined;
+        const lastSetSpeedEvent = events.findLast(event => event.type === 'SET_SPEED') as
+          | Emitted<SetSpeedEvent>
+          | undefined;
         if (lastSetSpeedEvent) {
           speed.value = lastSetSpeedEvent.payload.value;
         }

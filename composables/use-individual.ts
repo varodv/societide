@@ -32,9 +32,7 @@ function createComposable({ id }: { id: Individual['id'] }): IndividualComposabl
       || (event as Emitted<AnyCollectiveEvent>).payload?.collective?.some(
         currentId => currentId === id,
       )
-      || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(
-        parent => parent === id,
-      ),
+      || (event as Emitted<BirthEvent>).payload?.individual?.parents?.some(parent => parent === id),
     (...events: Array<Emitted<AnyEvent>>) => {
       log.value.push(...events);
       if (events.some(event => event.type === 'DEATH')) {
@@ -46,27 +44,26 @@ function createComposable({ id }: { id: Individual['id'] }): IndividualComposabl
     },
   );
 
-  const birthEvent = log.value.find(
-    event => event.type === 'BIRTH',
-  ) as Emitted<BirthEvent> | undefined;
+  const birthEvent = log.value.find(event => event.type === 'BIRTH') as
+    | Emitted<BirthEvent>
+    | undefined;
   if (!birthEvent) {
     throw new Error('The given individual does not exist');
   }
 
-  const parents = birthEvent.payload.individual.parents.map(
-    parent => useIndividual({ id: parent }),
+  const parents = birthEvent.payload.individual.parents.map(parent =>
+    useIndividual({ id: parent }),
   ) as IndividualComposable['parents'];
 
-  const deathEvent = computed(() =>
-    log.value.find(event => event.type === 'DEATH') as Emitted<DeathEvent> | undefined,
+  const deathEvent = computed(
+    () => log.value.find(event => event.type === 'DEATH') as Emitted<DeathEvent> | undefined,
   );
 
   const alive = computed(() => !deathEvent.value);
 
   const age = computed(() => {
     return Math.round(
-      getTimeSince(birthEvent.timestamp, deathEvent.value?.timestamp)
-      * AGE_DAYS_MULTIPLIER
+      (getTimeSince(birthEvent.timestamp, deathEvent.value?.timestamp) * AGE_DAYS_MULTIPLIER)
       / MILLISECONDS_IN_A_YEAR,
     );
   });

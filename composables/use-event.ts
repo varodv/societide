@@ -62,7 +62,7 @@ const useEvent = createSharedComposable(() => {
   function unsubscribe(id: Subscription['id']) {
     const index = subscriptions.findIndex(subscription => subscription.id === id);
     if (index < 0) {
-      throw new Error ('The given subscription does not exist');
+      throw new Error('The given subscription does not exist');
     }
     subscriptions.splice(index, 1);
   }
