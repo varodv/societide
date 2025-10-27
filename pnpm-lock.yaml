@@ -36,8 +36,8 @@ importers:
         specifier: 3.3.0
         version: 3.3.0
       tailwindcss:
-        specifier: 4.1.7
-        version: 4.1.7
+        specifier: 4.1.16
+        version: 4.1.16
       tw-animate-css:
         specifier: 1.3.0
         version: 1.3.0
@@ -5056,6 +5056,9 @@ packages:
 
   tailwind-merge@3.3.0:
     resolution: {integrity: sha512-fyW/pEfcQSiigd5SNn0nApUOxx0zB/dm6UDU/rEwc2c3sX2smWUNbapHv+QRqLGVp9GWX3THIa7MUGPo+YkDzQ==}
+
+  tailwindcss@4.1.16:
+    resolution: {integrity: sha512-pONL5awpaQX4LN5eiv7moSiSPd/DLDzKVRJz8Q9PgzmAdd1R4307GQS2ZpfiN7ZmekdQrfhZZiSE5jkLR4WNaA==}
 
   tailwindcss@4.1.7:
     resolution: {integrity: sha512-kr1o/ErIdNhTz8uzAYL7TpaUuzKIE6QPQ4qmSdxnoX/lo+5wmUHQA6h3L5yIqEImSRnAAURDirLu/BgiXGPAhg==}
@@ -11239,6 +11242,8 @@ snapshots:
   system-architecture@0.1.0: {}
 
   tailwind-merge@3.3.0: {}
+
+  tailwindcss@4.1.16: {}
 
   tailwindcss@4.1.7: {}
 
